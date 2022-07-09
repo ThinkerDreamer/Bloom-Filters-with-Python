@@ -1,19 +1,29 @@
-import encodings
 import hashlib
 import sys
 
 registers = [False] * 32
 print(registers)
+hashers = [hashlib.sha256, hashlib.sha512, hashlib.md5]
 
-posse = ["Angel", "Shae", "Josephine", "Hazem", "Adam"]
-
-for person in posse:
-    encodings = []
-    encodings.append(hashlib.sha256(person.encode("utf-8")))
-    encodings.append(hashlib.sha512(person.encode("utf-8")))
-    encodings.append(hashlib.md5(person.encode("utf-8")))
-    for encoding in encodings:
-        reg = int.from_bytes(encoding.digest(),sys.byteorder) % 32
+def hash_and_add(data):
+    for h in hashers:
+        result = h(data.encode('utf-8'))
+        reg = int.from_bytes(result.digest(),sys.byteorder) % 32
         registers[reg] = True
 
-print(registers)
+def hash_and_check(data):
+    results = []
+    for h in hashers:
+        result = h(data.encode('utf-8'))
+        reg = int.from_bytes(result.digest(),sys.byteorder) % 32
+        results.append(registers[reg])
+    return not False in set(results)
+
+posse = ["Angel", "Shae", "Josephine", "Hazem", "Adam"]
+for person in posse:
+    hash_and_add(person)
+
+# print(registers)
+
+test_value = input("Enter a test value: ")
+print(hash_and_check(test_value))
